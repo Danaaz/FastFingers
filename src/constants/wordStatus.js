@@ -1,4 +1,4 @@
-export const NEW = "NEW";
-export const CURRENT = "CURRENT";
-export const FAIL = "FAIL";
-export const CORRECT = "CORRECT";
+export const NEW = "new";
+export const CURRENT = "current";
+export const WRONG = "wrong";
+export const CORRECT = "correct";

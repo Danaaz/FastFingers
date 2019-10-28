@@ -21,17 +21,17 @@ const useStyles = makeStyles(theme => ({
 const App = () => {
     const classes = useStyles();
     return(
-        <Container maxWidth="md">
+        <Container maxWidth="lg">
             <div className={classes.root}>
                 <Grid container spacing={3}>
-                    <Grid item xs={9}>
+                    <Grid item lg={9}>
                         <Paper className={classes.paper}>
-                            <FastFingers></FastFingers>
+                            <FastFingers />
                         </Paper>
                     </Grid>
-                    <Grid item xs={3}>
+                    <Grid item lg={3}>
                         <Paper className={classes.paper}>
-                            <HighScores></HighScores>
+                            <HighScores />
                         </Paper>
                     </Grid>
                 </Grid>

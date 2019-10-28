@@ -1,32 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
-import { makeStyles } from '@material-ui/core/styles';
 
 import { words } from '../constants/Words';
-import { NEW, CORRECT, FAIL, CURRENT } from '../constants/wordStatus';
-
-const useStyles = makeStyles(theme => ({
-    size: {
-        width: '100%'
-    },
-    words: {
-        width: '100%',
-        textAlign: 'left',
-        border: 'solid 1px rgba(0, 0, 0, 0.38)',
-    },
-}));
+import { NEW, CORRECT, WRONG, CURRENT } from '../constants/wordStatus';
+import { Button } from '@material-ui/core';
 
 const FastFingers = () => {
     const [activeWords, setActiveWords] = useState([]);
     const [currentWord, setCurrentWord] = useState(0);
     const [inputWord, setInputWord] = useState("");
-    const style = useStyles();
+    const [wordsCompleted, setWordsCompleted] = useState(0);
+    const [correctWords, setCorrectWords] = useState(0);
 
     const getNewWords = () => {
         const newWords = []
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 12; i++) {
             const randomWord = words[Math.floor(Math.random()*words.length)];
             newWords.push({
                 word: randomWord,
@@ -39,7 +28,7 @@ const FastFingers = () => {
     const validateCurrentWord = () => {
         const newActiveWords = [...activeWords];
         if(activeWords[currentWord].word === inputWord.trim()) newActiveWords[currentWord].status = CORRECT;
-        else newActiveWords[currentWord].status = FAIL;
+        else newActiveWords[currentWord].status = WRONG;
 
         setActiveWords(newActiveWords);
     };
@@ -54,11 +43,12 @@ const FastFingers = () => {
         }
     };
 
-    const getColor = ({status}) => {
-        if (status === CORRECT) return "green";
-        else if (status === FAIL) return "red";
-        else return "";
-    };
+    const printRow = (words) => {
+        return words.map((current, index) => {
+            const {word, status} = current;
+            return <span key={index} className={`word ${status}`}>{word}</span>
+        });
+    }
 
     const compareInput = () => {
         return activeWords[currentWord].word.includes(inputWord.trim());
@@ -69,36 +59,33 @@ const FastFingers = () => {
     }, [activeWords, currentWord]);
 
     return(
-        <div>
+        <Grid container alignContent="center" spacing={3}>
             { activeWords.length === 0 && getNewWords() }
-
-            <Grid container style={{padding: "8px"}} className={style.words}>
-                { activeWords && activeWords.map((word, index) => {
-                    return (
-                        <Paper 
-                        elevation={0}
-                        key={index} 
-                        style={{padding: "3px", margin: "3px", background: getColor(word)}}>{word.word}</Paper>
-                    );
-                })}
+            <Grid item lg={12} className="rowBox"> { activeWords && printRow(activeWords)} </Grid>
+            <Grid item lg={12}>
+                <TextField 
+                    autoFocus
+                    className="input"
+                    error={!!inputWord && !compareInput()}
+                    value={inputWord}
+                    onChange={(event) => {
+                        setInputWord(event.target.value);
+                    }}
+                    onKeyPress={(event) => {
+                        if(event.key === " ") {
+                            nextWord();
+                            setInputWord("");
+                        }
+                    }}
+                />
+                <span className="timer">
+                    timer
+                </span>
+                <Button>
+                    Start
+                </Button>
             </Grid>
-            <TextField 
-                error={!!inputWord && !compareInput()}
-                className={style.size}
-                margin="normal"
-                value={inputWord}
-                autoFocus
-                onChange={(event) => {
-                    setInputWord(event.target.value);
-                }}
-                onKeyPress={(event) => {
-                    if(event.key === " ") {
-                        nextWord();
-                        setInputWord("");
-                    }
-                }}
-            />
-        </div>
+        </Grid>
     );
 }
 

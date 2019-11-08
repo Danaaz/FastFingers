@@ -5,34 +5,39 @@ import { fromS } from 'hh-mm-ss';
 
 import refresh from '../image/refresh.png'
 import { words } from '../constants/Words';
-import { NEW, CORRECT, WRONG, CURRENT } from '../constants/wordStatus';
+import { NEW, CORRECT, WRONG, HIGHLIGHT } from '../constants/wordStatus';
 import { Button } from '@material-ui/core';
-import { timeout } from 'q';
+
+const TIME = 60;
 
 const FastFingers = () => {
-    const [activeWords, setActiveWords] = useState([]);
-    const [currentWord, setCurrentWord] = useState(0);
+    const [prevWords, setPrevWords] = useState([]);
+    const [currentWords, setCurrentWords] = useState([]);
+    const [nextWords, setNextWords] = useState([]);
+    const [currentWordIndex, setCurrentWordIndex] = useState(0);
     const [inputWord, setInputWord] = useState("");
     const [disableInput, setDisableInput] = useState(false);
+    const [gameOver, setGameOver] = useState(true);
+    const [timer, setTimer] = useState(TIME);
     const [wordsCompleted, setWordsCompleted] = useState(0);
     const [correctWords, setCorrectWords] = useState(0);
-    const [timer, setTimer] = useState(60);
-    const [gameOver, setGameOver] = useState(true);
-    let interval;
 
     const tikTok = () => {
         setTimer(timer => timer - 1);
     }
 
     const restartTimer = () => {
-        setTimer(60);
+        setTimer(TIME);
     }
 
     const restart = () => {
         setGameOver(true);
         setDisableInput(false);
         restartTimer();
-        getNewWords();
+        setPrevWords([]);
+        setCurrentWords(getNewWords());
+        setNextWords(getNewWords());
+        setCurrentWordIndex(0);
         setInputWord("");
     }
 
@@ -49,59 +54,77 @@ const FastFingers = () => {
         return timer <= 0;
     }
 
+    const swapRows = () => {
+        setPrevWords(currentWords);
+        setCurrentWords(nextWords);
+        setNextWords(getNewWords());
+    }
+
     const getNewWords = () => {
         const newWords = []
-        for (let i = 0; i < 12; i++) {
+        for (let i = 0; i < 10; i++) {
             const randomWord = words[Math.floor(Math.random()*words.length)];
             newWords.push({
                 word: randomWord,
                 status: NEW
             });
         }
-        setActiveWords(newWords);
-        setCurrentWord(0);
-    };
+        return newWords;
+    }
 
     const validateCurrentWord = () => {
-        const newActiveWords = [...activeWords];
-        if(activeWords[currentWord].word === inputWord.trim()) newActiveWords[currentWord].status = CORRECT;
-        else newActiveWords[currentWord].status = WRONG;
+        const newCurrentWords = [...currentWords];
 
-        setActiveWords(newActiveWords);
+        currentWords[currentWordIndex].word === inputWord.trim()
+            ? newCurrentWords[currentWordIndex].status = CORRECT
+            : newCurrentWords[currentWordIndex].status = WRONG;
+
+        setCurrentWords(newCurrentWords);
     };
 
     const nextWord = () => {
         validateCurrentWord();
-        if(currentWord === activeWords.length-1) {
-            setCurrentWord(0);
-            getNewWords();
+        if(currentWordIndex === currentWords.length-1) {
+            setCurrentWordIndex(0);
+            swapRows();
         } else {
-            setCurrentWord(currentWord + 1);
+            setCurrentWordIndex(currentWordIndex + 1);
         }
     };
+
+    const highlightCurrentWord = () => {
+        const newCurrentWords = [...currentWords];
+        if (newCurrentWords.length) {
+            newCurrentWords[currentWordIndex].status = HIGHLIGHT;
+            setCurrentWords(newCurrentWords);
+        }
+    }
 
     const printRow = (words) => {
         return words.map((current, index) => {
             const {word, status} = current;
-            return <span key={index} className={`word ${status}`}>{word}</span>
+            return <span key={index} className={`word ${status}`}>{word}</span>;
         });
     }
 
     const compareInput = () => {
-        return activeWords[currentWord].word.includes(inputWord.trim());
+        const curWord = currentWords[currentWordIndex].word;
+        return curWord.substring(0, inputWord.length) === inputWord;
     };
 
     // ComponentDidMount - First time component is renderd
     useEffect(() => {
-        console.log("ComponentDidMount");
-        
         restart();
     }, []);
 
     // When current word is changed or new words are generated
     useEffect(() => {
-        setCurrentWord(currentWord);
-    }, [activeWords, currentWord]);
+        setCurrentWordIndex(currentWordIndex);
+    }, [currentWords, currentWordIndex]);
+
+    useEffect(() => {
+        highlightCurrentWord();
+    }, [currentWordIndex, nextWords]);
 
     // Timer starts
     useEffect(() => {
@@ -118,7 +141,11 @@ const FastFingers = () => {
 
     return(
         <Grid container alignContent="center" spacing={3}>
-            <Grid item lg={12} className="rowBox"> { activeWords && printRow(activeWords)} </Grid>
+            <Grid item lg={12} className="rowBox">
+                <Grid className="prevRow"> { printRow(prevWords) } </Grid>
+                <Grid className="currentRow"> { printRow(currentWords) } </Grid>
+                <Grid className="nextRow"> { printRow(nextWords) } </Grid>
+            </Grid>
             <Grid item lg={12}>
                 <TextField
                     autoFocus
@@ -127,11 +154,12 @@ const FastFingers = () => {
                     error={!!inputWord && !compareInput()}
                     value={inputWord}
                     onChange={(event) => {
-                        if ( gameOver ) startGame();
-                        setInputWord(event.target.value);
+                        let input = event.target.value.trim();
+                        if ( gameOver && input ) startGame();
+                        setInputWord(input);
                     }}
                     onKeyPress={(event) => {
-                        if(event.key === " ") {
+                        if(event.key === " " && inputWord.trim().length) {
                             nextWord();
                             setInputWord("");
                         }

@@ -1,69 +1,69 @@
 html {
-  min-height: 100%;
+	min-height: 100%;
 }
 
 body {
-  margin: 1em;
-  padding: 1em;
-  font-family: sans-serif;
-  background-color: #95e8f3;
-  min-height: 100%;
+	margin: 1em;
+	padding: 1em;
+	font-family: sans-serif;
+	background-color: #95e8f3;
+	min-height: 100%;
 }
 
 .rowBox {
-  border: solid 1px rgba(0, 0, 0, 0.38);
-  font-family: Times New Roman, Times, serif;
-  font-weight: bold;
+	border: solid 1px rgba(0, 0, 0, 0.38);
+	font-family: Times New Roman, Times, serif;
+	font-weight: bold;
 }
 
 .prevRow {
-  padding: 0.5em;
-  font-size: 1em;
-  opacity: 0.5;
+	padding: 0.5em;
+	font-size: 1em;
+	opacity: 0.5;
 }
 
 .currentRow {
-  padding: 0.5em;
-  font-size: 1.5em;
+	padding: 0.5em;
+	font-size: 1.5em;
 }
 
 .nextRow {
-  padding: 0.5em;
-  font-size: 1em;
-  opacity: 0.5;
+	padding: 0.5em;
+	font-size: 1em;
+	opacity: 0.5;
 }
 
 .word {
-  padding: 3px;
-  margin: 3px;
+	padding: 3px;
+	margin: 3px;
 }
 
 .input {
-  font-size: 1.5em;
-  width: 30%;
+	font-size: 1.5em;
+	width: 30%;
 }
 
 .refresh-button {
-  max-height: 1.5em;
+	max-height: 1.5em;
 }
 
 .highlight {
-  background: lightgrey;
+	background: lightgrey;
 }
 
 .correct {
-  color: green;
+	color: green;
 }
 
 .wrong {
-  color: red;
+	color: red;
 }
 
 .timer {
-  background: #3c4d5c;
-  color: white;
-  padding: 5px;
-  margin-left: 5px;
-  margin-right: 5px;
-  font-size: 0.85em;
+	background: #3c4d5c;
+	color: white;
+	padding: 5px;
+	margin-left: 5px;
+	margin-right: 5px;
+	font-size: 0.85em;
 }
